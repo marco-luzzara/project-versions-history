@@ -1,0 +1,41 @@
+[
+    {
+        "version": "1.2.0",
+        "tasks": [
+            {
+                "id": "taskId1",
+                "messages": [
+                    "mex1",
+                    "mex2",
+                    "mex3"
+                ]
+            }
+        ]
+    },
+    {
+        "version": "1.1.0",
+        "tasks": [
+            {
+                "id": "taskId1",
+                "messages": [
+                    "mex1",
+                    "mex2",
+                    "mex3"
+                ]
+            }
+        ]
+    },
+    {
+        "version": "1.0.0",
+        "tasks": [
+            {
+                "id": "taskId2",
+                "messages": [
+                    "mex5",
+                    "mex6",
+                    "mex7"
+                ]
+            }
+        ]
+    }
+]
