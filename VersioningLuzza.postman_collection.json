@@ -1,0 +1,101 @@
+{
+	"info": {
+		"_postman_id": "d1ef95af-ea3c-40ec-8ae0-9b6261cc1fed",
+		"name": "VersioningLuzza",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "versions",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/javascript",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n            \"version\" : \"1.2.0\",\n            \"tasks\" : [\n                {\n                    \"id\":\"taskId1\",\n                    \"messages\":[\n                        \"mex1\",\n                        \"mex2\",\n                        \"mex3\"\n                    ]\n                }\n            ]\n        }",
+					"options": {
+						"raw": {
+							"language": "javascript"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:9001/proj1/versions",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"proj1",
+						"versions"
+					],
+					"query": [
+						{
+							"key": " version",
+							"value": "1.2.3",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "proj last version",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9001/proj1/versions/last",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"proj1",
+						"versions",
+						"last"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "proj",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:9001/",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "proj and version",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

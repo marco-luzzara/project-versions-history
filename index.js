@@ -96,7 +96,7 @@ const server = http.createServer((req, res) => {
         resContent += `<h3>${pathParams[1]}</h3>`;
         resContent += `<ul>`;
         repoSearched.forEach((details) => {
-            resContent += `<li>Version <a href="#">${details.version}</a></li>`;
+            resContent += `<li>Version ${details.version}</li>`;
             resContent += `<ul>`
             details.tasks.forEach((task) => {
                 resContent += `<li><a href='https://redmine.aliaslab.net/issues/${task.id}'>Task ${task.id}</a></li>`;
