@@ -1,14 +1,14 @@
 {
 	"info": {
-		"_postman_id": "d1ef95af-ea3c-40ec-8ae0-9b6261cc1fed",
+		"_postman_id": "6aad452d-2398-4cbe-9f3b-9f6c2d015b74",
 		"name": "VersioningLuzza",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "versions",
+			"name": "Add new version",
 			"request": {
-				"method": "PUT",
+				"method": "POST",
 				"header": [
 					{
 						"key": "Content-Type",
@@ -19,7 +19,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n            \"version\" : \"1.2.0\",\n            \"tasks\" : [\n                {\n                    \"id\":\"taskId1\",\n                    \"messages\":[\n                        \"mex1\",\n                        \"mex2\",\n                        \"mex3\"\n                    ]\n                }\n            ]\n        }",
+					"raw": "{\n            \"version\" : \"1.5.2\",\n            \"tasks\" : [\n                {\n                    \"id\":\"taskId1\",\n                    \"messages\":[\n                        \"mex1\",\n                        \"mex2\",\n                        \"mex3\"\n                    ]\n                }\n            ]\n        }",
 					"options": {
 						"raw": {
 							"language": "javascript"
@@ -27,13 +27,13 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:9001/proj1/versions",
+					"raw": "localhost:9001/proj4/versions",
 					"host": [
 						"localhost"
 					],
 					"port": "9001",
 					"path": [
-						"proj1",
+						"proj4",
 						"versions"
 					],
 					"query": [
@@ -48,18 +48,18 @@
 			"response": []
 		},
 		{
-			"name": "proj last version",
+			"name": "Get last version",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:9001/proj1/versions/last",
+					"raw": "localhost:9001/proj2/versions/last",
 					"host": [
 						"localhost"
 					],
 					"port": "9001",
 					"path": [
-						"proj1",
+						"proj2",
 						"versions",
 						"last"
 					]
@@ -68,30 +68,38 @@
 			"response": []
 		},
 		{
-			"name": "proj",
+			"name": "View project HTML",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:9001/",
+					"raw": "localhost:9001/proj1",
 					"host": [
 						"localhost"
 					],
 					"port": "9001",
 					"path": [
-						""
+						"proj1"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "proj and version",
+			"name": "View project HTML with filter",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "localhost:9001/proj1/1.3.1",
+					"host": [
+						"localhost"
+					],
+					"port": "9001",
+					"path": [
+						"proj1",
+						"1.3.1"
+					]
 				}
 			},
 			"response": []
