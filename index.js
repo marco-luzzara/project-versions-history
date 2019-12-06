@@ -4,7 +4,7 @@ const http = require('http');
 const versionHistory = require('./data/prjHistoryStore');
 const versionApi = require('./api/version');
 
-const PORT = 9001;
+const PORT = 9002;
 
 const server = http.createServer((req, res) => {
     const pathParams = req.url.split('/');
