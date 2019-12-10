@@ -4,7 +4,7 @@ const http = require('http');
 const versionHistory = require('./data/prjHistoryStore');
 const versionApi = require('./api/version');
 
-const PORT = 9002;
+const PORT = 9001;
 
 const server = http.createServer((req, res) => {
     const pathParams = req.url.split('/');
@@ -21,11 +21,6 @@ const server = http.createServer((req, res) => {
     // returns a web page (static) where versions contains a list of tasks and each task has a list of commit message. task ids will be links to redmine issues
     } else if (pathParams.length == 2 && req.method === 'GET') {
         versionApi.getProjectHistoryHTML(req, res, pathParams[1]);
-
-    // GET /:project_name/:version
-    // returns the previous web page filtered by version
-    } else if (pathParams.length == 3 && req.method === 'GET') {
-        versionApi.getProjectHistoryHTML(req, res, pathParams[1], pathParams[2]);
 
     // Invalid request
     } else {

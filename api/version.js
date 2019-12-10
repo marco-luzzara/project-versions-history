@@ -56,8 +56,7 @@ function addNewVersion(req, res, projectName) {
 
 // GET /:project_name/
 // returns a web page (static) where versions contains a list of tasks and each task has a list of commit message. task ids will be links to redmine issues
-// or the same webpage with the only version specified
-function getProjectHistoryHTML(req, res, projectName, version) {
+function getProjectHistoryHTML(req, res, projectName) {
     if (projectName == undefined) {
         res.statusCode = 400;
         res.end('Project name undefined');
@@ -70,7 +69,7 @@ function getProjectHistoryHTML(req, res, projectName, version) {
     });
 
     try {
-        let content = versionHistory.viewHtmlForProject(projectName, version);
+        let content = versionHistory.viewHtmlForProject(projectName);
 
         res.write(content);
         res.statusCode = 200;
