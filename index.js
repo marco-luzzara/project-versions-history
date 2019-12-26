@@ -22,6 +22,11 @@ const server = http.createServer((req, res) => {
     } else if (pathParams.length == 2 && req.method === 'GET') {
         versionApi.getProjectHistoryHTML(req, res, pathParams[1]);
 
+    // DELETE /:project_name/versions/:version
+    // delete a version entry from project specified
+    } else if (pathParams[2] == "versions" && pathParams.length == 4 && req.method === 'DELETE') {
+        versionApi.deleteVersion(req, res, pathParams[1], pathParams[3]);
+
     // Invalid request
     } else {
         res.statusCode = 404;

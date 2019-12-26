@@ -19,6 +19,11 @@ class VersionHistory {
         return Array.from(this.repoVersions.keys());
     }
 
+    _saveProjectData(projectName, data) {
+        let content = JSON.stringify(data);
+        fs.writeFileSync(`./${PROJECTS_FOLDER}/${projectName}.json`, content);
+    }
+
     doesProjectExist(projectName) {
         return this.repoVersions.has(projectName);
     }
@@ -73,8 +78,19 @@ class VersionHistory {
         let projectData = this.getProjectData(projectName);
         projectData.versions.unshift(versionJsonData);
 
-        let content = JSON.stringify(projectData);
-        fs.writeFileSync(`./${PROJECTS_FOLDER}/${projectName}.json`, content);
+        this._saveProjectData(projectName, projectData);
+    }
+
+    deleteVersion(projectName, version) {
+        if (!this.doesVersionExist(projectName, version))
+            throw "Project or version does not exist";
+        
+        let projectData = this.getProjectData(projectName);
+        let versionEntryIndex = projectData.versions.findIndex(vEntry => vEntry.version === version);
+        
+        projectData.versions.splice(versionEntryIndex, 1);
+
+        this._saveProjectData(projectName, projectData);
     }
 
     viewHtmlForProject(projectName) {

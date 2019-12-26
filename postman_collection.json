@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "6aad452d-2398-4cbe-9f3b-9f6c2d015b74",
-		"name": "VersioningLuzza",
+		"_postman_id": "69b0370a-b17b-4563-ab4c-8791f3fffd43",
+		"name": "Aliaslab.Versioning.History",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -13,13 +13,13 @@
 					{
 						"key": "Content-Type",
 						"name": "Content-Type",
-						"value": "application/javascript",
+						"value": "application/json",
 						"type": "text"
 					}
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n            \"version\" : \"1.5.2\",\n            \"tasks\" : [\n                {\n                    \"id\":\"taskId1\",\n                    \"messages\":[\n                        \"mex1\",\n                        \"mex2\",\n                        \"mex3\"\n                    ]\n                }\n            ]\n        }",
+					"raw": "{\n    \"version\" : \"1.5.2\",\n    \"tasks\" : [\n        {\n            \"id\":\"taskId1\",\n            \"messages\":[\n                \"mex1\",\n                \"mex2\",\n                \"mex3\"\n            ]\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "javascript"
@@ -27,21 +27,14 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:9001/proj4/versions",
+					"raw": "{{host}}:{{port}}/IDSign.Snap.Integration/versions",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
-					"port": "9001",
+					"port": "{{port}}",
 					"path": [
-						"proj4",
+						"IDSign.Snap.Integration",
 						"versions"
-					],
-					"query": [
-						{
-							"key": " version",
-							"value": "1.2.3",
-							"disabled": true
-						}
 					]
 				}
 			},
@@ -53,13 +46,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:9001/proj2/versions/last",
+					"raw": "{{host}}:{{port}}/IDSign.Snap.Integration/versions/last",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
-					"port": "9001",
+					"port": "{{port}}",
 					"path": [
-						"proj2",
+						"IDSign.Snap.Integration",
 						"versions",
 						"last"
 					]
@@ -73,32 +66,33 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:9001/proj1",
+					"raw": "{{host}}:{{port}}/IDSign.Snap.Integration",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
-					"port": "9001",
+					"port": "{{port}}",
 					"path": [
-						"proj1"
+						"IDSign.Snap.Integration"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "View project HTML with filter",
+			"name": "Delete version",
 			"request": {
-				"method": "GET",
+				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:9001/proj1/1.3.1",
+					"raw": "{{host}}:{{port}}/IDSign.Snap.Integration/versions/1.5.2",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
-					"port": "9001",
+					"port": "{{port}}",
 					"path": [
-						"proj1",
-						"1.3.1"
+						"IDSign.Snap.Integration",
+						"versions",
+						"1.5.2"
 					]
 				}
 			},

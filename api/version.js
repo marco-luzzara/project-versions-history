@@ -81,8 +81,31 @@ function getProjectHistoryHTML(req, res, projectName) {
     }
 }
 
+// DELETE /:project_name/versions/:version
+// delete a version entry from project specified
+function deleteVersion(req, res, projectName, version) {
+    if (projectName === undefined || version === undefined) {
+        res.statusCode = 400;
+        res.end('Project name or version undefined');
+
+        return;
+    }
+
+    try {
+        versionHistory.deleteVersion(projectName, version);
+
+        res.statusCode = 200;
+        res.end();
+    }
+    catch (exc) {
+        res.statusCode = 400;
+        res.end(exc);
+    }
+}
+
 module.exports = {
     getLastVersion: getLastVersion,
     addNewVersion: addNewVersion,
-    getProjectHistoryHTML: getProjectHistoryHTML
+    getProjectHistoryHTML: getProjectHistoryHTML,
+    deleteVersion: deleteVersion
 }
