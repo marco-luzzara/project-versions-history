@@ -128,11 +128,11 @@ class VersionHistory {
                 details.tasks.forEach((task) => {
                     resContent += `
                                 <li>
-                                    <a href='https://redmine.aliaslab.net/issues/${task.id}'>Task ${task.id}</a>
+                                    <a href='https://redmine.aliaslab.net/issues/${task.taskId}'>Task ${task.taskId}</a>
                                     <ul>`;
-                    task.messages.forEach(msg => {
+                    task.commits.forEach(commitMsg => {
                         resContent += `
-                                        <li>${msg}</li>`;
+                                        <li>${commitMsg}</li>`;
                     });
                     resContent += `
                                     </ul>

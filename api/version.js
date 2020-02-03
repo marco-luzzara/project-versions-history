@@ -49,7 +49,7 @@ function addNewVersion(req, res, projectName) {
         }
         catch (exc) {
             res.statusCode = 400;
-            res.end(exc);
+            res.end(exc.message);
         }
     });
 }
@@ -77,7 +77,7 @@ function getProjectHistoryHTML(req, res, projectName) {
     }
     catch (exc) {
         res.statusCode = 400;
-        res.end(exc);
+        res.end(exc.message);
     }
 }
 
@@ -99,7 +99,7 @@ function deleteVersion(req, res, projectName, version) {
     }
     catch (exc) {
         res.statusCode = 400;
-        res.end(exc);
+        res.end(exc.message);
     }
 }
 
