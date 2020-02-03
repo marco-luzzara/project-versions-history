@@ -98,6 +98,8 @@ class VersionHistory {
             throw "Project does not exist";
 
         let versions = this.getProjectData(projectName).versions;
+        let whitespaceCSS = "\\00a0";
+
         let resContent = `
             <html>
                 <head>
@@ -106,6 +108,35 @@ class VersionHistory {
                         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
                         crossorigin="anonymous">
                     </script>
+                    <style>                       
+                        ul {                                 
+                            list-style-type: none;  
+                            padding: 0;             
+                            margin: 0;              
+                        }                                   
+
+                        li {                                 
+                            padding-left: 0.5em;    
+                        }
+                        
+                        .handle::before {
+                            content: "${whitespaceCSS.repeat(5)}";
+                            display: block;
+                            float: left;
+                        }
+                          
+                        .collapsed::before {
+                            content: "${whitespaceCSS.repeat(2)}+${whitespaceCSS.repeat(2)}";
+                            cursor: pointer;
+                            float: left;
+                        }                                                                                    
+                          
+                        .expanded::before {
+                            content: "${whitespaceCSS.repeat(2)}-${whitespaceCSS.repeat(2)}";
+                            cursor: pointer;
+                            float: left;
+                        }                           
+                    </style>             
                 </head>
                 <body>
                     <h3>${projectName}</h3>
@@ -119,7 +150,7 @@ class VersionHistory {
             });
         resContent += `
                     </select>
-                    <ul>`;
+                    <ul id="tree">`;
 
         versions.forEach(details => {
                 resContent += `
@@ -164,6 +195,22 @@ class VersionHistory {
 
                             lastSelected = selectedVal;
                         });
+
+                        $(document).ready(function() {                                                               
+                            $("#tree ul").hide();                                                       
+                          
+                            $("#tree li").each(function() {                                                  
+                                var handleSpan = $("<span></span>")                            
+                                    .addClass("handle").prependTo(this);                                          
+                          
+                                if($(this).has("ul").length > 0) {                              
+                                    handleSpan.addClass("collapsed").click(function() {                            
+                                    $(this).toggleClass("collapsed expanded")   
+                                        .siblings("ul").toggle();             
+                                    });                                                      
+                                }                                                                    
+                            });                                                                              
+                        });     
                     </script>
                 </body>
             </html>`;
