@@ -1,105 +1,134 @@
 const fs = require('fs');
 
-const versionHistory = require('../data/prjHistoryStore');
+const PROJECTS_FOLDER = process.env.PROJECTS_FOLDER || 'projects';
+
+const MissingProjectError = require('../model/exceptions/missingProjectError');
+const VersionAlreadyExistsError = require('../model/exceptions/versionAlreadyExistsError');
+const MissingVersionError = require('../model/exceptions/missingVersionError');
+
+const PrjHistoryManagerBuilder = require("../model/prjHistoryManagerBuilder");
+let prjHistoryManager = new PrjHistoryManagerBuilder(PROJECTS_FOLDER)
+    .fromFolderPath()
+    .build();
+
+    /**
+     * 
+     * @param {ServerResponse} res
+     * @param {Error} exc - error thrown
+     * @param {Object} handlerDescriptor - describes what error code corresponds to which errors. like:
+     * {
+     *     "404": [MissingProjectError, MissingVersionError],
+     *     "400": [null]
+     * }
+     * null corresponds to the default clause in a switch statement
+     */
+function handleException(res, exc, handlerDescriptor) {
+    console.log(exc);
+
+    let exceptionMap = new Map();
+    for (let [statusCode, errors] of Object.entries(handlerDescriptor)) {
+        for (let error of errors) {
+            exceptionMap.set(error, statusCode);
+        }
+    }
+
+    for (let [error, statusCode] in exceptionMap.entries()) {
+        if (error !== null && exc instanceof error) {
+            res.statusCode = statusCode;
+            res.end(exc);
+            return;
+        }
+    }
+
+    res.statusCode = exceptionMap.get(null);
+    res.end(exc);
+}
+
+function getBody(req) {
+    return new Promise((resolve, reject) => {
+        let body = "";
+        req.on('data', (chunk) => {
+            body += chunk;
+        }).on('end', () => {
+            resolve(body);
+        }).on('error', (err) => {
+            reject(err);
+        });
+    });
+}
+
 
 // GET /:project_name/versions/last
 // get the last version of a project
 function getLastVersion(req, res, projectName) {
-    if (projectName == undefined) {
-        res.statusCode = 400;
-        res.end('Project name undefined');
-
-        return;
-    }
-    if (versionHistory.doesProjectExist(projectName)) {
-        let lastVersion = versionHistory.getProjectLastVersion(projectName);
+    try {
+        let lastVersion = prjHistoryManager.getProjectLastVersion(projectName);
 
         res.statusCode = 200;
         res.end(lastVersion);
     }
-    else {
-        res.statusCode = 404;
-        res.end('Project Not found');
+    catch (exc) {
+        handleException(res, exc, {
+            "404": [MissingProjectError],
+            "500": [null]
+        });
     }
 }
 
 // POST /:project_name/versions/
 // body: json with version data
-function addNewVersion(req, res, projectName) {
-    if (projectName == undefined) {
-        res.statusCode = 400;
-        res.end('Project name undefined');
-
-        return;
-    }
-
-    let body = "";
-    req.on('data', function(chunk) {
-        body += chunk;
-    });
-
-    req.on('end', function() {
-        let jsonVersion = JSON.parse(body);
-
-        try {
-            versionHistory.addNewVersion(projectName, jsonVersion);
-
-            res.statusCode = 200;
-            res.end("");
-        }
-        catch (exc) {
-            res.statusCode = 400;
-            res.end(exc.message);
-        }
-    });
-}
-
-// GET /:project_name/
-// returns a web page (static) where versions contains a list of tasks and each task has a list of commit message. task ids will be links to redmine issues
-function getProjectHistoryHTML(req, res, projectName) {
-    if (projectName == undefined) {
-        res.statusCode = 400;
-        res.end('Project name undefined');
-
-        return;
-    }
-
-    res.writeHead(200, {
-        'Content-Type': 'text/html'
-    });
-
+async function addNewVersion(req, res, projectName) {
     try {
-        let content = versionHistory.viewHtmlForProject(projectName);
+        let body = await getBody(req);
+        let versionData = JSON.parse(body);
 
-        res.write(content);
+        if (!prjHistoryManager.doesProjectExist(projectName))
+            await prjHistoryManager.addNewProject(projectName);
+        await prjHistoryManager.addNewVersion(projectName, versionData);
+
         res.statusCode = 200;
         res.end();
     }
     catch (exc) {
-        res.statusCode = 400;
-        res.end(exc.message);
+        handleException(res, exc, {
+            "400": [VersionAlreadyExistsError],
+            "500": [null]
+        });
     }
 }
 
 // DELETE /:project_name/versions/:version
 // delete a version entry from project specified
-function deleteVersion(req, res, projectName, version) {
-    if (projectName === undefined || version === undefined) {
-        res.statusCode = 400;
-        res.end('Project name or version undefined');
-
-        return;
-    }
-
+async function deleteVersion(req, res, projectName, version) {
     try {
-        versionHistory.deleteVersion(projectName, version);
+        await prjHistoryManager.deleteVersion(projectName, version);
 
         res.statusCode = 200;
         res.end();
     }
     catch (exc) {
-        res.statusCode = 400;
-        res.end(exc.message);
+        handleException(res, exc, {
+            "404": [MissingProjectError, MissingVersionError],
+            "500": [null]
+        });
+    }
+}
+
+// GET /:project_name/
+// returns a web page (static) where versions contains a list of tasks and each task has a list of commit message. task ids will be links to redmine issues
+async function getProjectHistoryHTML(req, res, projectName) {
+    try {
+        let content = await prjHistoryManager.viewHtmlForProject(projectName);
+
+        res.setHeader('Content-Type', 'text/html');
+        res.statusCode = 200;
+        res.end(content);
+    }
+    catch (exc) {
+        handleException(res, exc, {
+            "404": [MissingProjectError],
+            "500": [null]
+        });
     }
 }
 

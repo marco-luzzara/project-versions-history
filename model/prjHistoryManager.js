@@ -1,103 +1,146 @@
 const fs = require('fs');
+const readLastLines = require('read-last-lines');
 
-const PROJECTS_FOLDER = 'projects';
+const csvUtils = require("../utils/csvUtils");
+const fileUtils = require('../utils/fileUtils');
 
-class VersionHistory {
-    constructor(projectsFolder) {
+// errors
+const MissingProjectError = require('./exceptions/missingProjectError');
+const ProjectAlreadyExistsError = require('./exceptions/projectAlreadyExistsError');
+const VersionAlreadyExistsError = require('./exceptions/versionAlreadyExistsError');
+const MissingVersionError = require('./exceptions/missingVersionError');
+
+class PrjHistoryManager {
+    /**
+     * 
+     * @param {string} projectsFolder 
+     * @param {Map<string, string>} projectsLastVersion 
+     * @param {Map<string, Set>} projectsVersionsList 
+     */
+    constructor(projectsFolder, projectsLastVersion, projectsVersionsList) {
         this.projectsFolder = projectsFolder;
-        this.repoVersions = new Map();
-
-        fs.readdirSync(this.projectsFolder).forEach(project => {
-            let rawdata = fs.readFileSync(`${this.projectsFolder}/${project}`);
-
-            let projectName = project.substring(0, project.lastIndexOf('.'));
-            this.repoVersions.set(projectName, JSON.parse(rawdata));
-        });
+        this.projectsLastVersion = projectsLastVersion;
+        this.projectsVersionsList = projectsVersionsList;
     }
 
-    get projectNames() {
-        return Array.from(this.repoVersions.keys());
-    }
-
-    _saveProjectData(projectName, data) {
-        let content = JSON.stringify(data);
-        fs.writeFileSync(`./${PROJECTS_FOLDER}/${projectName}.json`, content);
+    getProjectFile(projectName) {
+        return `./${this.projectsFolder}/${projectName}.csv`;
     }
 
     doesProjectExist(projectName) {
-        return this.repoVersions.has(projectName);
+        return this.projectsLastVersion.has(projectName);
     }
 
     doesVersionExist(projectName, version) {
         if (!this.doesProjectExist(projectName))
-            return false;
+            throw new MissingProjectError(projectName);
 
-        return this.getProjectData(projectName).versions.some(versionData => versionData.version === version)
+        return this.projectsVersionsList.get(projectName).has(version);
     }
 
-    getProjectData(projectName) {
+    async getProjectVersionsHistory(projectName) {
         if (!this.doesProjectExist(projectName))
-            return null;
+            throw new MissingProjectError(projectName);
 
-        return this.repoVersions.get(projectName);
+        let projectVersionsHistory = await fileUtils.readFile(this.getProjectFile(projectName));
+        return (await csvUtils.csvToJsonSync(projectVersionsHistory)).reverse();
     }
 
+    /**
+     * 
+     * @param {string} projectName 
+     * @description return the last version or null if the project does not contain versions
+     */
     getProjectLastVersion(projectName) {
-        let projectData = this.getProjectData(projectName);
-        if (projectData === null || projectData.versions[0] === undefined)
-            return null;
+        if (!this.doesProjectExist(projectName))
+            throw new MissingProjectError(projectName);
 
-        return projectData.versions[0].version;
+        return this.projectsLastVersion.get(projectName);
     }
 
-    addNewProject(projectName) {
+    /**
+     * 
+     * @param {string} projectName 
+     */
+    async addNewProject(projectName) {
         if (this.doesProjectExist(projectName))
-            return;
+            throw new ProjectAlreadyExistsError(projectName);
 
-        let content = `
-        {
-            "versions": []
-        }`;
-        let jsonContent = JSON.parse(content);
+        this.projectsLastVersion.set(projectName, null);
+        this.projectsVersionsList.set(projectName, new Set());
 
-        fs.writeFileSync(`./${PROJECTS_FOLDER}/${projectName}.json`, content);
-        this.repoVersions.set(projectName, jsonContent);
+        await fileUtils.writeFile(this.getProjectFile(projectName), "");
     }
 
-    addNewVersion(projectName, versionJsonData) {
-        if (!this.doesProjectExist(projectName)) {
-            this.addNewProject(projectName);
-            this.addNewVersion(projectName, versionJsonData);
+    /**
+     * 
+     * @param {string} projectName 
+     * @param {Object} versionData 
+     */
+    async addNewVersion(projectName, versionData) {
+        if (this.doesVersionExist(projectName, versionData.version))
+            throw new VersionAlreadyExistsError(projectName, versionData.version);
 
-            return;
+        let csvContent = "";
+        if ((await fileUtils.getFileSize(this.getProjectFile(projectName))).size === 0)
+            csvContent = csvUtils.jsonToCsvSync([versionData]);
+        else 
+            csvContent = csvUtils.castObjectToCsv(versionData);
+
+        await fileUtils.appendFile(this.getProjectFile(projectName), "\n" + csvContent);
+
+        this.projectsVersionsList.get(projectName).add(versionData.version);
+        this.projectsLastVersion.set(projectName, versionData.version);
+    }
+
+    /**
+     * delete the specified version
+     * @param {string} projectName 
+     * @param {string} version 
+     */
+    async deleteVersion(projectName, version) {
+        if (!this.doesVersionExist(projectName, version))
+            throw new MissingVersionError(projectName, version);
+
+        let oldCsvContent = (await fileUtils.readFile(this.getProjectFile(projectName)))
+            .split('\n');
+        let oldVersionsCsv = oldCsvContent.slice(1); 
+        let newVersionsCsv = [];
+
+        // version === last version
+        if (this.projectsLastVersion.get(projectName) === version) {
+            newVersionsCsv = oldVersionsCsv.slice(0, -1);
+
+            let projectVersions = [...this.projectsVersionsList.get(projectName)];
+            this.projectsLastVersion.set(projectName, 
+                projectVersions.length === 1 ? null : 
+                projectVersions[projectVersions.length - 2]);
+        }
+        // version !== last version
+        else {
+            let versionIndex = null;
+            let i = 0;
+            for (let v of this.projectsVersionsList.get(projectName).values()) {
+                if (v === version) {
+                    versionIndex = i;
+                }
+                i++;
+            }
+
+            newVersionsCsv = [...oldVersionsCsv.slice(0, versionIndex), ...oldVersionsCsv.slice(versionIndex + 1)];
         }
 
-        if (this.doesVersionExist(projectName, versionJsonData.version))
-            throw "Version already present";
+        let newCsvContent = [oldCsvContent[0], ...newVersionsCsv].join("\n");
+        await fileUtils.writeFile(newCsvContent);
 
-        let projectData = this.getProjectData(projectName);
-        projectData.versions.unshift(versionJsonData);
-
-        this._saveProjectData(projectName, projectData);
+        this.projectsVersionsList.get(projectName).delete(version);
     }
 
-    deleteVersion(projectName, version) {
-        if (!this.doesVersionExist(projectName, version))
-            throw "Project or version does not exist";
-        
-        let projectData = this.getProjectData(projectName);
-        let versionEntryIndex = projectData.versions.findIndex(vEntry => vEntry.version === version);
-        
-        projectData.versions.splice(versionEntryIndex, 1);
-
-        this._saveProjectData(projectName, projectData);
-    }
-
-    viewHtmlForProject(projectName) {
+    async viewHtmlForProject(projectName) {
         if (!this.doesProjectExist(projectName))
-            throw "Project does not exist";
+            throw new MissingProjectError(projectName);
 
-        let versions = this.getProjectData(projectName).versions;
+        let versions = await this.getProjectVersionsHistory(projectName);
         let whitespaceCSS = "\\00a0";
 
         let resContent = `
@@ -219,6 +262,4 @@ class VersionHistory {
     }
 }
 
-let versionHistory = new VersionHistory(PROJECTS_FOLDER);
-
-module.exports = versionHistory;
+module.exports = PrjHistoryManager;
