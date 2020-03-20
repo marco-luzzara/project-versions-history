@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 const PROJECTS_FOLDER = process.env.PROJECTS_FOLDER || 'projects';
 
 const MissingProjectError = require('../model/exceptions/missingProjectError');

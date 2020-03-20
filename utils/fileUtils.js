@@ -1,5 +1,4 @@
 const fs = require("fs");
-const promiseUtils = require('./promiseUtils');
 
 module.exports = {
     /**
@@ -61,71 +60,71 @@ module.exports = {
 	 *
 	 * @return {Array} lines
 	 */
-	readLastlinesSync: function(input_file_path, maxLineCount, encoding) {
+	// readLastlinesSync: function(input_file_path, maxLineCount, encoding) {
 
-		const NEW_LINE_CHARACTERS = ["\n"];
+	// 	const NEW_LINE_CHARACTERS = ["\n"];
 
-		if (encoding == null)
-			encoding = "utf8";
+	// 	if (encoding == null)
+	// 		encoding = "utf8";
 
-		const readPreviousChar = function( stat, file, currentCharacterCount) {
-			let bytesReadAndBuffer = fs.readSync(file, Buffer.alloc(1), 0, 1, stat.size - 1 - currentCharacterCount);
-            return String.fromCharCode(bytesReadAndBuffer[1][0]);
-		};
+	// 	const readPreviousChar = function( stat, file, currentCharacterCount) {
+	// 		let bytesReadAndBuffer = fs.readSync(file, Buffer.alloc(1), 0, 1, stat.size - 1 - currentCharacterCount);
+    //         return String.fromCharCode(bytesReadAndBuffer[1][0]);
+	// 	};
 
-        let self = {
-            stat: null,
-            file: null,
-        };
+    //     let self = {
+    //         stat: null,
+    //         file: null,
+    //     };
 
-        if (!fs.existsSync(input_file_path))
-            throw new Error("file does not exist");
+    //     if (!fs.existsSync(input_file_path))
+    //         throw new Error("file does not exist");
 
-        try {
-            self.stat = fs.statSync(input_file_path);
-            self.file = fs.openSync(input_file_path, "r");
+    //     try {
+    //         self.stat = fs.statSync(input_file_path);
+    //         self.file = fs.openSync(input_file_path, "r");
     
-            let chars = 0;
-            let lineCount = 0;
-            let lines = "";
+    //         let chars = 0;
+    //         let lineCount = 0;
+    //         let lines = "";
     
-            const do_while_loop = function() {
-                if (lines.length > self.stat.size) {
-                    lines = lines.substring(lines.length - self.stat.size);
-                }
+    //         const do_while_loop = function() {
+    //             if (lines.length > self.stat.size) {
+    //                 lines = lines.substring(lines.length - self.stat.size);
+    //             }
     
-                if (lines.length >= self.stat.size || lineCount >= maxLineCount) {
-                    if (NEW_LINE_CHARACTERS.includes(lines.substring(0, 1))) {
-                        lines = lines.substring(1);
-                    }
+    //             if (lines.length >= self.stat.size || lineCount >= maxLineCount) {
+    //                 if (NEW_LINE_CHARACTERS.includes(lines.substring(0, 1))) {
+    //                     lines = lines.substring(1);
+    //                 }
     
-                    fs.closeSync(self.file);
+    //                 fs.closeSync(self.file);
     
-                    if (encoding === "buffer") {
-                        return Buffer.from(lines, "binary");
-                    }
+    //                 if (encoding === "buffer") {
+    //                     return Buffer.from(lines, "binary");
+    //                 }
     
-                    return Buffer.from(lines, "binary").toString(encoding);
-                }
+    //                 return Buffer.from(lines, "binary").toString(encoding);
+    //             }
     
-                let nextCharacter = readPreviousChar(self.stat, self.file, chars);
-                lines = nextCharacter + lines;
+    //             let nextCharacter = readPreviousChar(self.stat, self.file, chars);
+    //             lines = nextCharacter + lines;
     
-                if (NEW_LINE_CHARACTERS.includes(nextCharacter) && lines.length > 1) {
-                    lineCount++;
-                }
-                chars++;
+    //             if (NEW_LINE_CHARACTERS.includes(nextCharacter) && lines.length > 1) {
+    //                 lineCount++;
+    //             }
+    //             chars++;
     
-                return do_while_loop();
-            };
+    //             return do_while_loop();
+    //         };
     
-            return do_while_loop();
-        }
-        catch (exc) {
-            if (self.file !== null) 
-                fs.closeSync(self.file);
+    //         return do_while_loop();
+    //     }
+    //     catch (exc) {
+    //         if (self.file !== null) 
+    //             fs.closeSync(self.file);
 
-            throw exc;
-        }
-	}
+    //         throw exc;
+    //     }
+	// }
 };

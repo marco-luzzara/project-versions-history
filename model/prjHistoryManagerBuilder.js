@@ -47,7 +47,7 @@ class PrjHistoryManagerBuilder {
         let content = csvUtils.jsonToCsvSync(projectHistory);
         fs.writeFileSync(path.join(this.projectsFolder, projectName + ".csv"), content);
 
-        this.projectsLastVersion.set(projectName, projectHistory[0].version);
+        this.projectsLastVersion.set(projectName, projectHistory[projectHistory.length - 1].version || null);
         this.projectsVersionsList.set(projectName, new Set(projectHistory.map(vh => vh.version)));
 
         return this;
@@ -61,7 +61,7 @@ class PrjHistoryManagerBuilder {
             let rawdata = fs.readFileSync(path.join(this.projectsFolder, project));
             let projectHistory = csvUtils.csvToJsonSync(rawdata);
 
-            this.projectsLastVersion.set(projectName, projectHistory[0].version);
+            this.projectsLastVersion.set(projectName, projectHistory[projectHistory.length - 1].version || null);
             this.projectsVersionsList.set(projectName, new Set(projectHistory.map(vh => vh.version)));
         });
 

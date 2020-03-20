@@ -1,5 +1,4 @@
-const fs = require('fs');
-const readLastLines = require('read-last-lines');
+const path = require('path');
 
 const csvUtils = require("../utils/csvUtils");
 const fileUtils = require('../utils/fileUtils');
@@ -24,7 +23,7 @@ class PrjHistoryManager {
     }
 
     getProjectFile(projectName) {
-        return `./${this.projectsFolder}/${projectName}.csv`;
+        return path.join(this.projectsFolder, projectName + ".csv");
     }
 
     doesProjectExist(projectName) {
@@ -42,7 +41,7 @@ class PrjHistoryManager {
         if (!this.doesProjectExist(projectName))
             throw new MissingProjectError(projectName);
 
-        let projectVersionsHistory = await fileUtils.readFile(this.getProjectFile(projectName));
+        let projectVersionsHistory = await fileUtils.readFile(this.getProjectFile(projectName), "utf8");
         return (await csvUtils.csvToJsonSync(projectVersionsHistory)).reverse();
     }
 
@@ -102,7 +101,7 @@ class PrjHistoryManager {
         if (!this.doesVersionExist(projectName, version))
             throw new MissingVersionError(projectName, version);
 
-        let oldCsvContent = (await fileUtils.readFile(this.getProjectFile(projectName)))
+        let oldCsvContent = (await fileUtils.readFile(this.getProjectFile(projectName), "utf8"))
             .split('\n');
         let oldVersionsCsv = oldCsvContent.slice(1); 
         let newVersionsCsv = [];

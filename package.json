@@ -14,8 +14,7 @@
     "cross-env": "^7.0.2",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
-    "http": "0.0.0",
-    "read-last-lines": "^1.7.2"
+    "http": "0.0.0"
   },
   "devDependencies": {
     "jest": "^25.1.0"
