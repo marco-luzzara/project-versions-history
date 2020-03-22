@@ -37,7 +37,12 @@ class PrjHistoryManagerBuilder {
         }
     }
 
+    _getProjectName(projectName) {
+        return projectName + ".csv";
+    }
+
     /**
+     * last version in projecthistory is the lastVersion
      * @param {string} projectName
      * @augments {object} projectHistory
      */
@@ -45,9 +50,10 @@ class PrjHistoryManagerBuilder {
         projectName = this._validateProjectName(projectName);
 
         let content = csvUtils.jsonToCsvSync(projectHistory);
-        fs.writeFileSync(path.join(this.projectsFolder, projectName + ".csv"), content);
+        fs.writeFileSync(path.join(this.projectsFolder, this._getProjectName(projectName)), content);
 
-        this.projectsLastVersion.set(projectName, projectHistory[projectHistory.length - 1].version || null);
+        this.projectsLastVersion.set(projectName, projectHistory.length == 0 ? null : 
+            projectHistory[projectHistory.length - 1].version);
         this.projectsVersionsList.set(projectName, new Set(projectHistory.map(vh => vh.version)));
 
         return this;
@@ -58,10 +64,11 @@ class PrjHistoryManagerBuilder {
             let projectName = project.substring(0, project.lastIndexOf('.'));
             projectName = this._validateProjectName(projectName);
 
-            let rawdata = fs.readFileSync(path.join(this.projectsFolder, project));
+            let rawdata = fs.readFileSync(path.join(this.projectsFolder, project), 'utf8');
             let projectHistory = csvUtils.csvToJsonSync(rawdata);
 
-            this.projectsLastVersion.set(projectName, projectHistory[projectHistory.length - 1].version || null);
+            this.projectsLastVersion.set(projectName, projectHistory.length == 0 ? null : 
+                projectHistory[projectHistory.length - 1].version);
             this.projectsVersionsList.set(projectName, new Set(projectHistory.map(vh => vh.version)));
         });
 

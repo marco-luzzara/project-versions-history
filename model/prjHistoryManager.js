@@ -84,9 +84,9 @@ class PrjHistoryManager {
         if ((await fileUtils.getFileSize(this.getProjectFile(projectName))).size === 0)
             csvContent = csvUtils.jsonToCsvSync([versionData]);
         else 
-            csvContent = csvUtils.castObjectToCsv(versionData);
+            csvContent = "\n" + csvUtils.castObjectToCsv(versionData);
 
-        await fileUtils.appendFile(this.getProjectFile(projectName), "\n" + csvContent);
+        await fileUtils.appendFile(this.getProjectFile(projectName), csvContent);
 
         this.projectsVersionsList.get(projectName).add(versionData.version);
         this.projectsLastVersion.set(projectName, versionData.version);
@@ -130,7 +130,7 @@ class PrjHistoryManager {
         }
 
         let newCsvContent = [oldCsvContent[0], ...newVersionsCsv].join("\n");
-        await fileUtils.writeFile(newCsvContent);
+        await fileUtils.writeFile(this.getProjectFile(projectName), newCsvContent);
 
         this.projectsVersionsList.get(projectName).delete(version);
     }

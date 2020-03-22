@@ -77,10 +77,13 @@ module.exports = {
         if (typeof(jsonArray) === 'string')
             jsonArray = JSON.parse(jsonArray);
 
-        if (!Array.isArray(jsonArray) || jsonArray.length < 1)
-            throw new Error('the json must be a non-empty array');
+        if (!Array.isArray(jsonArray))
+            throw new Error('the json must be an array');
 
-        let fields = Object.keys(jsonArray[0]);
+        let fields = Object.keys(jsonArray[0] || {});
+
+        if (fields.length === 0)
+            return "";
 
         let csvArray = [this.castObjectToCsv(fields)];
         for (let jsonObj of jsonArray) {
