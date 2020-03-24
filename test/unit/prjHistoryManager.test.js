@@ -1,9 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const env_consts = require('../../env_consts');
 const PrjHistoryManagerBuilder = require("../../model/prjHistoryManagerBuilder");
-const TEST_PROJECT_NAME = "test";
-const TEST_VERSION = "1.0.0";
 
 // custom errors
 const MissingProjectError = require('../../model/exceptions/missingProjectError');
@@ -11,8 +10,11 @@ const ProjectAlreadyExistsError = require('../../model/exceptions/projectAlready
 const VersionAlreadyExistsError = require('../../model/exceptions/versionAlreadyExistsError');
 const MissingVersionError = require('../../model/exceptions/missingVersionError');
 
+const TEST_PROJECT_NAME = "test";
+const TEST_VERSION = "1.0.0";
+
 function getPrjHistoryManager(customConfigs) {
-    let prjHistoryManagerBuilder = new PrjHistoryManagerBuilder(process.env.PROJECTS_FOLDER)
+    let prjHistoryManagerBuilder = new PrjHistoryManagerBuilder(env_consts.PROJECTS_FOLDER)
         .fromFolderPath();
     
     for (let customConfig of customConfigs) {
@@ -23,7 +25,7 @@ function getPrjHistoryManager(customConfigs) {
 }
 
 beforeEach(() => {
-    const jsonPath = path.join(process.env.PROJECTS_FOLDER, TEST_PROJECT_NAME + ".csv");
+    const jsonPath = path.join(env_consts.PROJECTS_FOLDER, TEST_PROJECT_NAME + ".csv");
 
     if (fs.existsSync(jsonPath))
         fs.unlinkSync(jsonPath);

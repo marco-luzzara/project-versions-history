@@ -1,9 +1,8 @@
 const fs = require('fs');
 const http = require('http');
 
+const env_consts = require('./env_consts');
 const versionApi = require('./api/version');
-
-const PORT = process.env.PORT || 9001;
 
 const server = http.createServer(async (req, res) => {
     const pathParams = req.url.split('/');
@@ -33,6 +32,14 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
-server.listen(PORT, function () {
-    console.log(`IDSign.Versioning listening on port ${PORT}`);
+let server_starting = new Promise((resolve, reject) => {
+    server.listen(env_consts.PORT, env_consts.HOST, function () {
+        console.log(`IDSign.Versioning listening on port ${env_consts.PORT}`);
+        resolve();
+    });
 });
+
+module.exports = {
+    server: server,
+    server_starting: server_starting
+}

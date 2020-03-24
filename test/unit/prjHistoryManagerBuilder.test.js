@@ -1,7 +1,8 @@
+const env_consts = require('../../env_consts');
 const PrjHistoryManagerBuilder = require("../../model/prjHistoryManagerBuilder");
 
 function getPrjHistoryManagerBuilder(customConfigs) {
-    let prjHistoryManagerBuilder = new PrjHistoryManagerBuilder(process.env.PROJECTS_FOLDER)
+    let prjHistoryManagerBuilder = new PrjHistoryManagerBuilder(env_consts.PROJECTS_FOLDER)
         .fromFolderPath();
     
     for (let customConfig of customConfigs) {

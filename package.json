@@ -5,16 +5,19 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env PROJECTS_FOLDER=./projects node index.js",
-    "test": "cross-env PROJECTS_FOLDER=./test/projects jest -i"
+    "testLogic": "cross-env PROJECTS_FOLDER=./test/projects jest -i \"test(?!/api)/.*\"",
+    "testApi": "jest -i \"test(?=/api)/.*\"",
+    "testAll": "cross-env PROJECTS_FOLDER=./test/projects jest -i"
   },
-  "author": "",
+  "author": "Marco Luzzara (marco.luzzara97@gmail.com)",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
     "cross-env": "^7.0.2",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
-    "http": "0.0.0"
+    "http": "0.0.0",
+    "node-fetch": "^2.6.0"
   },
   "devDependencies": {
     "jest": "^25.1.0"

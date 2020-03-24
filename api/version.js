@@ -1,27 +1,27 @@
-const PROJECTS_FOLDER = process.env.PROJECTS_FOLDER || 'projects';
+const prjHistoryManager = require('../instances/prjHistoryManagerInstance');
+
+const AddNewVersionBody = require('./model/addNewVersionBody');
 
 const MissingProjectError = require('../model/exceptions/missingProjectError');
 const VersionAlreadyExistsError = require('../model/exceptions/versionAlreadyExistsError');
 const MissingVersionError = require('../model/exceptions/missingVersionError');
+const AddNewVersionBodyError = require('./model/exceptions/addNewVersionBodyError');
 
-const PrjHistoryManagerBuilder = require("../model/prjHistoryManagerBuilder");
-let prjHistoryManager = new PrjHistoryManagerBuilder(PROJECTS_FOLDER)
-    .fromFolderPath()
-    .build();
-
-    /**
-     * 
-     * @param {ServerResponse} res
-     * @param {Error} exc - error thrown
-     * @param {Object} handlerDescriptor - describes what error code corresponds to which errors. like:
-     * {
-     *     "404": [MissingProjectError, MissingVersionError],
-     *     "400": [null]
-     * }
-     * null corresponds to the default clause in a switch statement
-     */
+/**
+ * 
+ * @param {ServerResponse} res
+ * @param {Error} exc - error thrown
+ * @param {Object} handlerDescriptor - describes what error code corresponds to which errors. like:
+ * {
+ *     "404": [MissingProjectError, MissingVersionError],
+ *     "400": [null]
+ * }
+ * null corresponds to the default clause in a switch statement
+ */
 function handleException(res, exc, handlerDescriptor) {
-    console.log(exc);
+    //console.log(exc);
+    res.setHeader('Content-Type', 'application/json');
+
 
     let exceptionMap = new Map();
     for (let [statusCode, errors] of Object.entries(handlerDescriptor)) {
@@ -30,15 +30,19 @@ function handleException(res, exc, handlerDescriptor) {
         }
     }
 
-    for (let [error, statusCode] in exceptionMap.entries()) {
+    let isExcFound = false;
+    for (let [error, statusCode] of exceptionMap.entries()) {
         if (error !== null && exc instanceof error) {
             res.statusCode = statusCode;
-            res.end(exc);
-            return;
+            isExcFound = true;
+            break;
         }
     }
 
-    res.statusCode = exceptionMap.get(null);
+    exc = JSON.stringify(exc);
+    if (!isExcFound)
+        res.statusCode = exceptionMap.get(null);
+
     res.end(exc);
 }
 
@@ -79,6 +83,7 @@ async function addNewVersion(req, res, projectName) {
     try {
         let body = await getBody(req);
         let versionData = JSON.parse(body);
+        versionData = new AddNewVersionBody(versionData);
 
         if (!prjHistoryManager.doesProjectExist(projectName))
             await prjHistoryManager.addNewProject(projectName);
@@ -89,7 +94,7 @@ async function addNewVersion(req, res, projectName) {
     }
     catch (exc) {
         handleException(res, exc, {
-            "400": [VersionAlreadyExistsError],
+            "400": [VersionAlreadyExistsError, AddNewVersionBodyError],
             "500": [null]
         });
     }
