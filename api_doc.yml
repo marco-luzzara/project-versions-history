@@ -1,0 +1,185 @@
+openapi: 3.0.0
+info:
+  description: Api for the Versioning Server
+  version: "1.0.0"
+  title: Versioning Server
+  
+tags:
+  - name: versions
+    description: calls for managing versions and corresponding history
+    
+paths:
+  /{projName}/versions/last:
+    get:
+      tags:
+      - versions
+      summary: get last version
+      operationId: getLastVersion
+      description: get most recent version from version's history. 
+      parameters:
+      - $ref: '#/components/parameters/projNameParam'
+      responses:
+        '200':
+          description: returns the last version or an empty string if there is not any version.
+          content:
+            text/plain: 
+              schema: 
+                type: string
+        '404':
+          description: project name not found in history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectException"
+        default:
+          description: "status code: 500"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+          
+          
+          
+  /{projName}/versions/:        
+    post:
+      tags:
+      - versions
+      summary: upload a new version
+      operationId: AddNewVersion
+      description: upload a new version with history changes from previous version
+      requestBody:
+        description: the current version with its info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddNewVersionBody'
+      parameters:
+        - $ref: '#/components/parameters/projNameParam'
+      responses:
+        '200':
+          description: version uploaded
+        '400':
+          description: version specified already exists (1) or the body is malformed (2). See response body for more details. 
+          content:
+            application/json (1):
+              schema:
+                $ref: '#/components/schemas/VersionException'
+            application/json (2):
+              schema:
+                $ref: '#/components/schemas/ModelValidationException'
+        default:
+          description: "status code: 500"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericException"
+          
+  /{projName}/versions/{version}:        
+    delete:
+      tags:
+      - versions
+      operationId: DeleteVersion
+      summary: delete the specified version for projName
+      description: delete the specified version for projName
+      parameters:
+      - $ref: '#/components/parameters/projNameParam'
+      - in: path
+        name: version
+        description: version to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: version deleted
+        '404':
+          description: project specified does not exist (1) or version specified does not exist (2). See response body for more details. 
+          content:
+            application/json (1):
+              schema:
+                $ref: '#/components/schemas/ProjectException'
+            application/json (2):
+              schema:
+                $ref: '#/components/schemas/VersionException'
+
+  
+    
+components:
+  parameters:
+    projNameParam:
+      in: path
+      name: projName
+      description: project's name
+      required: true
+      schema: 
+        type: string
+        
+  schemas:
+    AddNewVersionBody:
+      type: object
+      required:
+      - version
+      - tasks
+      properties:
+        version:
+          type: string
+        tasks:
+          type: array
+          items:
+            type: object
+            required:
+            - taskId
+            - commits
+            properties:
+              taskId:
+                type: string
+              commits:
+                type: array
+                items:
+                  type: string
+  
+    ProjectException:
+      properties:
+        name:
+          type: string
+        projectName:
+          type: string
+        message:
+          type: string
+        stack:
+          type: string
+    
+    VersionException:
+      properties:
+        name:
+          type: string
+        projectName:
+          type: string
+        version:
+          type: string
+        message:
+          type: string
+        stack:
+          type: string
+          
+    ModelValidationException:
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+        stack:
+          type: string
+          
+    GenericException:
+      properties:
+        message:
+          type: string
+        stack:
+          type: string
+                  
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/marco-luzzara/Versioning-Web-Server/1.0.0

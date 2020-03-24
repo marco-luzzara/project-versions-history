@@ -7,6 +7,17 @@ const VersionAlreadyExistsError = require('../model/exceptions/versionAlreadyExi
 const MissingVersionError = require('../model/exceptions/missingVersionError');
 const AddNewVersionBodyError = require('./model/exceptions/addNewVersionBodyError');
 
+function flattenObject(obj) {
+    let newObj = {};
+    var props = Object.getOwnPropertyNames(obj);
+
+    for(var key of props) {
+        newObj[key] = obj[key];
+    }
+
+    return newObj;
+}
+
 /**
  * 
  * @param {ServerResponse} res
@@ -21,7 +32,6 @@ const AddNewVersionBodyError = require('./model/exceptions/addNewVersionBodyErro
 function handleException(res, exc, handlerDescriptor) {
     //console.log(exc);
     res.setHeader('Content-Type', 'application/json');
-
 
     let exceptionMap = new Map();
     for (let [statusCode, errors] of Object.entries(handlerDescriptor)) {
@@ -39,7 +49,7 @@ function handleException(res, exc, handlerDescriptor) {
         }
     }
 
-    exc = JSON.stringify(exc);
+    exc = JSON.stringify(flattenObject(exc));
     if (!isExcFound)
         res.statusCode = exceptionMap.get(null);
 

@@ -19,21 +19,21 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"version\" : \"1.5.2\",\n    \"tasks\" : [\n        {\n            \"id\":\"taskId1\",\n            \"messages\":[\n                \"mex1\",\n                \"mex2\",\n                \"mex3\"\n            ]\n        }\n    ]\n}",
+					"raw": "{\n    \"version\" : \"1.5.3\",\n    \"tasks\" : [\n        {\n            \"taskId\":\"taskId1\",\n            \"commits\":[\n                \"mex1\",\n                \"mex2\",\n                \"mex3\"\n            ]\n        }\n    ]\n}",
 					"options": {
 						"raw": {
-							"language": "javascript"
+							"language": "json"
 						}
 					}
 				},
 				"url": {
-					"raw": "{{host}}:{{port}}/IDSign.Snap.Integration/versions",
+					"raw": "{{host}}:{{port}}/test/versions",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"IDSign.Snap.Integration",
+						"test",
 						"versions"
 					]
 				}
@@ -46,13 +46,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{host}}:{{port}}/IDSign.Snap.Integration/versions/last",
+					"raw": "{{host}}:{{port}}/test/versions/last",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"IDSign.Snap.Integration",
+						"test",
 						"versions",
 						"last"
 					]
@@ -84,15 +84,15 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "{{host}}:{{port}}/IDSign.Snap.Integration/versions/1.5.2",
+					"raw": "{{host}}:{{port}}/test/versions/1.5.3",
 					"host": [
 						"{{host}}"
 					],
 					"port": "{{port}}",
 					"path": [
-						"IDSign.Snap.Integration",
+						"test",
 						"versions",
-						"1.5.2"
+						"1.5.3"
 					]
 				}
 			},
