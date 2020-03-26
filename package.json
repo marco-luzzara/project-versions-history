@@ -12,6 +12,7 @@
   "author": "Marco Luzzara (marco.luzzara97@gmail.com)",
   "license": "ISC",
   "dependencies": {
+    "async-lock": "^1.2.2",
     "body-parser": "^1.19.0",
     "cross-env": "^7.0.2",
     "express": "^4.17.1",

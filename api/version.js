@@ -1,4 +1,7 @@
+const AsyncLock = require('async-lock');
+
 const prjHistoryManager = require('../instances/prjHistoryManagerInstance');
+let lock = new AsyncLock();
 
 const AddNewVersionBody = require('./model/addNewVersionBody');
 
@@ -72,9 +75,9 @@ function getBody(req) {
 
 // GET /:project_name/versions/last
 // get the last version of a project
-function getLastVersion(req, res, projectName) {
+async function getLastVersion(req, res, projectName) {
     try {
-        let lastVersion = prjHistoryManager.getProjectLastVersion(projectName);
+        let lastVersion = await lock.acquire(projectName, () => prjHistoryManager.getProjectLastVersion(projectName));
 
         res.statusCode = 200;
         res.end(lastVersion);
@@ -95,9 +98,11 @@ async function addNewVersion(req, res, projectName) {
         let versionData = JSON.parse(body);
         versionData = new AddNewVersionBody(versionData);
 
-        if (!prjHistoryManager.doesProjectExist(projectName))
-            await prjHistoryManager.addNewProject(projectName);
-        await prjHistoryManager.addNewVersion(projectName, versionData);
+        await lock.acquire(projectName, async () => {
+            if (!prjHistoryManager.doesProjectExist(projectName))
+                await prjHistoryManager.addNewProject(projectName);
+            await prjHistoryManager.addNewVersion(projectName, versionData);
+        });
 
         res.statusCode = 200;
         res.end();
@@ -114,7 +119,9 @@ async function addNewVersion(req, res, projectName) {
 // delete a version entry from project specified
 async function deleteVersion(req, res, projectName, version) {
     try {
-        await prjHistoryManager.deleteVersion(projectName, version);
+        await lock.acquire(projectName, async () => {
+            await prjHistoryManager.deleteVersion(projectName, version);
+        });
 
         res.statusCode = 200;
         res.end();
